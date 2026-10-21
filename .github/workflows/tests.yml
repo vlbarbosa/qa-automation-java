@@ -1,0 +1,53 @@
+# ============================================================================
+# PIPELINE DE CI (Integração Contínua) - GitHub Actions
+# ============================================================================
+# Este arquivo faz o GitHub rodar os testes automaticamente, num servidor
+# dele, sempre que alguém envia código. Se um teste quebrar, o GitHub mostra
+# um X vermelho; se tudo passar, um check verde.
+# Para ver: no repositório, aba "Actions".
+# ============================================================================
+
+# Nome que aparece na aba Actions
+name: Testes automatizados
+
+# QUANDO o pipeline roda:
+on:
+  push:                  # a cada push na branch main
+    branches: [ main ]
+  pull_request:          # a cada Pull Request para a main
+    branches: [ main ]
+  workflow_dispatch:     # permite rodar manualmente pelo botão "Run workflow"
+
+jobs:
+  testes:
+    # Máquina Linux disponibilizada pelo GitHub (já vem com Chrome instalado)
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Baixa o código do repositório para a máquina
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      # 2. Instala o Java 25 LTS e guarda as bibliotecas do Maven em cache,
+      #    para as próximas execuções serem mais rápidas
+      - name: Configurar Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      # 3. Roda os testes de API e Web
+      #    (-B = modo "batch", sem interação, ideal para CI)
+      #    Mobile não roda aqui porque precisaria de emulador.
+      - name: Rodar testes de API e Web
+        run: mvn -B test -Dgroups=api,web
+
+      # 4. Salva os relatórios dos testes para download,
+      #    mesmo se algum teste falhar (if: always())
+      - name: Publicar relatório dos testes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-testes
+          path: target/surefire-reports/
