@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ==========================================================================
+  pom.xml  (Project Object Model)
+  ==========================================================================
+  Este é o arquivo de configuração do MAVEN.
+  O Maven é o gerenciador de build e de dependências do Java. Ele:
+    1. Baixa automaticamente as bibliotecas que o projeto usa (dependências);
+    2. Compila o código;
+    3. Executa os testes (comando: mvn test).
+
+  Sempre que o projeto precisar de uma biblioteca nova, ela é adicionada
+  dentro da tag <dependencies>, e o Maven faz o download sozinho.
+  ==========================================================================
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Identificação do projeto: grupo (normalmente o domínio invertido),
+         nome do artefato e versão. -->
+    <groupId>com.qa</groupId>
+    <artifactId>qa-automation-java</artifactId>
+    <version>1.0.0</version>
+    <name>QA Automation Java</name>
+    <description>Projeto de automação de testes: API (RestAssured), Web (Selenium) e Mobile (Appium)</description>
+
+    <!-- Propriedades: variáveis reaproveitadas no restante do arquivo. -->
+    <properties>
+        <!-- Versão LTS do Java usada para compilar. -->
+        <maven.compiler.release>25</maven.compiler.release>
+
+        <!-- Garante que acentos (ç, ã, é) funcionem em qualquer computador. -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Versões das bibliotecas, centralizadas aqui para facilitar
+             a atualização: muda num lugar só. -->
+        <junit.version>5.11.2</junit.version>
+        <restassured.version>5.5.0</restassured.version>
+        <selenium.version>4.25.0</selenium.version>
+        <appium.version>9.3.0</appium.version>
+
+        <!-- Quais grupos (tags) de teste rodam por padrão no "mvn test".
+             Rodamos API e Web. O Mobile só roda se pedirmos explicitamente:
+                 mvn test -Dgroups=mobile
+             porque ele precisa de Appium e emulador configurados. -->
+        <groups>api,web</groups>
+    </properties>
+
+    <!-- ===================== DEPENDÊNCIAS ===================== -->
+    <!-- scope "test" = a biblioteca só é usada nos testes, não no código final. -->
+    <dependencies>
+
+        <!-- JUnit 5: framework que organiza e executa os testes.
+             Fornece @Test, @BeforeEach, @AfterEach, asserts, testes
+             parametrizados (@ParameterizedTest) e tags (@Tag). -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- RestAssured: biblioteca para testar APIs REST em Java,
+             com a sintaxe given() / when() / then(). -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${restassured.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Extensão do RestAssured para validar o CONTRATO da API
+             (formato da resposta) usando um arquivo JSON Schema. -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>${restassured.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Selenium WebDriver: controla o navegador (Chrome, Firefox...)
+             como se fosse um usuário real, para testes Web. -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>${selenium.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Appium Java Client: cliente Java que conversa com o servidor
+             Appium para automatizar aplicativos Android e iOS. -->
+        <dependency>
+            <groupId>io.appium</groupId>
+            <artifactId>java-client</artifactId>
+            <version>${appium.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- ===================== BUILD ===================== -->
+    <build>
+        <plugins>
+            <!-- Compiler plugin recente para reconhecer o release do Java 25. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.1</version>
+            </plugin>
+
+            <!-- Surefire: plugin do Maven que executa os testes no "mvn test".
+                 Aqui dizemos para ele filtrar os testes pelas tags definidas
+                 na propriedade "groups" lá em cima. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.4</version>
+                <configuration>
+                    <groups>${groups}</groups>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
